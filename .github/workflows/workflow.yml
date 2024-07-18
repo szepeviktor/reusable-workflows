@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: "Workflow"
+
+on:  # yamllint disable-line rule:truthy
+    pull_request: null
+    push:
+        branches:
+        - "main"
+    workflow_call: null
+
+permissions: {}  # yamllint disable-line rule:braces
+
+concurrency:
+    group: "${{ github.workflow }}-${{ github.ref }}"
+    cancel-in-progress: true
+
+jobs:
+    actionlint:
+        name: "Actionlint"
+        runs-on: "ubuntu-22.04"
+        timeout-minutes: 1
+        steps:
+        -
+            name: "Checkout repository"
+            uses: "actions/checkout@v4.1.5"
+        -
+            name: "Analyze workflow files"
+            uses: "docker://rhysd/actionlint:1.7.1"
+            with:
+                args: "-color -verbose -shellcheck="
